@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from todo.models import models, schemas
+from models import models, schemas
 
 
 def add_todo(db: Session, todo: schemas.TodoCreate):
@@ -10,8 +10,12 @@ def add_todo(db: Session, todo: schemas.TodoCreate):
     return db_todo
 
 
+def get_todos(db: Session, skip: int, limit: int):
+    return db.query(models.Todo).offset(skip).limit(limit).all()
+
+
 def get_todo_by_id(db: Session, todo_id: int):
-    return db.query(models.Todo).filter(models.Todo.tudo_id == todo_id).first()
+    return db.query(models.Todo).filter(models.Todo.todo_id == todo_id).first()
 
 
 def update_todo_by_id(db: Session, todo_id: int, todo: schemas.TodoUpdate):
