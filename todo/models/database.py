@@ -1,14 +1,13 @@
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 with open("C:/Users/hrape/PycharmProjects/stepik_fastapi/todo/models/config.txt", "r") as config_file:
     SQLALCHEMY_DATABASE_URL = config_file.read().strip()
 
-engine = create_engine(
+engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+AsyncSessionLocal = async_sessionmaker(engine, autocommit=False, autoflush=False, class_=AsyncSession)
 
 Base = declarative_base()

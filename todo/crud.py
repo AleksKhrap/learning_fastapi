@@ -1,33 +1,45 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from models import models, schemas
+from sqlalchemy.future import select
+from fastapi import HTTPException
 
 
-def add_todo(db: Session, todo: schemas.TodoCreate):
+async def add_todo(db: AsyncSession, todo: schemas.TodoCreate):
     db_todo = models.Todo(title=todo.title, description=todo.description)
     db.add(db_todo)
-    db.commit()
-    db.refresh(db_todo)
+    await db.commit()
+    await db.refresh(db_todo)
     return db_todo
 
 
-def get_todos(db: Session, skip: int, limit: int):
-    return db.query(models.Todo).offset(skip).limit(limit).all()
+async def get_todos(db: AsyncSession, skip: int, limit: int):
+    todos = await db.execute(select(models.Todo).offset(skip).limit(limit))
+    # для синхронного db.query(models.Todo).offset(skip).limit(limit).all()
+    return todos.scalars().all()
 
 
-def get_todo_by_id(db: Session, todo_id: int):
-    return db.query(models.Todo).filter(models.Todo.todo_id == todo_id).first()
+async def get_todo_by_id(db: AsyncSession, todo_id: int):
+    todo = await db.execute(select(models.Todo).filter(models.Todo.todo_id == todo_id))
+    if todo is None:
+        raise HTTPException(status_code=404, detail="Запись с таким id не найдена")
+    # db.query(models.Todo).filter(models.Todo.todo_id == todo_id).first()
+    return todo.scalar()
 
 
-def update_todo_by_id(db: Session, todo_id: int, todo: schemas.TodoUpdate):
-    db_todo = get_todo_by_id(db, todo_id)
+async def update_todo_by_id(db: AsyncSession, todo_id: int, todo: schemas.TodoUpdate):
+    db_todo = await get_todo_by_id(db, todo_id)
+    if db_todo is None:
+        raise HTTPException(status_code=404, detail="Запись с таким id не найдена")
     db_todo.title, db_todo.description, db_todo.completed = todo.title, todo.description, todo.completed
-    db.commit()
-    db.refresh(db_todo)
+    await db.commit()
+    await db.refresh(db_todo)
     return db_todo
 
 
-def delete_todo_by_id(db: Session, todo_id: int, todo: schemas.Todo):
-    db_todo = get_todo_by_id(db, todo_id)
-    db.delete(db_todo)
-    db.commit()
-    return todo
+async def delete_todo_by_id(db: AsyncSession, todo_id: int):
+    db_todo = await get_todo_by_id(db, todo_id)
+    if db_todo is None:
+        raise HTTPException(status_code=404, detail="Запись с таким id не найдена")
+    await db.delete(db_todo)
+    await db.commit()
+    return {"message": "Запись успешно удалена"}
