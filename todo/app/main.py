@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import models, schemas
-import crud
+from . import crud
 from models.database import AsyncSessionLocal, engine
 from typing import List
 
