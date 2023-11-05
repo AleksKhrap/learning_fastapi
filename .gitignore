@@ -3,4 +3,3 @@ venv/
 *.log
 __pycache__/
 *.db
-todo/models/config.txt
