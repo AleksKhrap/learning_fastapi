@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Cookie, Response
-from models.models import User
+from first_app.models.models import User
 import uuid
 
 app = FastAPI()

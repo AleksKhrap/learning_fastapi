@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import FastAPI
-from models.models import Product
+from first_app.models.models import Product
 
 app = FastAPI()
 
