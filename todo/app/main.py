@@ -5,6 +5,7 @@ import crud
 from models.database import AsyncSessionLocal, engine
 from typing import List
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 app = FastAPI()
 
@@ -20,6 +21,20 @@ async def custom_exception_handler(request: Request, exc: CustomException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": exc.detail}
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """errors = []
+    for error in exc.errors():
+        field_name = ".".join(str(loc) for loc in error["loc"])
+        error_msg = error["msg"]
+        errors.append({"field": field_name, "message": error_msg})"""
+
+    return JSONResponse(
+        status_code=422,
+        content={"error": "Неверный формат данных"}
     )
 
 
