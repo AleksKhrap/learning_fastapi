@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from models.models import User, UserAdult, Feedback, UserCreate
+from first_app.models.models import User, UserAdult, Feedback, UserCreate
 
 app = FastAPI()
 
